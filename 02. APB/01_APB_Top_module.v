@@ -5,27 +5,17 @@
 `include "apb_slave2.v"
 
 module apb_top(
-  
-  //input signals
-  
   input PCLK,PRESETn,READ_WRITE,transfer,
   input [7:0]apb_write_data,
   input [8:0]apb_write_paddr,apb_read_paddr,
-  
-  //ouput 
-  
   output [7:0]apb_read_data_out
-  
 );
   
   wire [7:0]PWDATA,PRDATA,PRDATA1,PRDATA2;
   wire [8:0]PADDR;
-  wire PREADY,PREADY1,PREADY2,PENABLE,PSEL1,PSEL2,PWRITE;
-  
+  wire PREADY,PREADY1,PREADY2,PENABLE,PSEL1,PSEL2,PWRITE;  
   assign PREADY = PADDR[8] ? PREADY2 : PREADY1;
   assign PRDATA = READ_WRITE ? (PADDR[8] ? PRDATA2 : PRDATA1) : 8'bx;
-  
-  //MASTER
   
   apb_master dut_master(.PCLK(PCLK), 
              .PRESETn(PRESETn), 
@@ -46,8 +36,6 @@ module apb_top(
              
             );
   
-  //SLAVE1
-  
   apb_slave1 dut_slave1(.PCLK(PCLK),
                         .PRESETn(PRESETn),
                         .PENABLE(PENABLE),
@@ -59,8 +47,6 @@ module apb_top(
                         .PREADY1(PREADY1)
                         
                        );
-  
-  //SLAVE2
   
   apb_slave2 dut_slave2(.PCLK(PCLK),
                         .PRESETn(PRESETn),
