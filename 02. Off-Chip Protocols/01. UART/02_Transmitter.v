@@ -1,7 +1,7 @@
 module transmitter #(parameter data_width = 8)(
   input clk, rst, tx_en, tx_tick, parity_en, odd_or_even_parity,
-  output tx, busy
-  output [data_width-1:0] data_in
+  output reg tx, busy
+  output reg [data_width-1:0] data_in
 );
   localparam data_count_width = $clog2(data_width);
   
