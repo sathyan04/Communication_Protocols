@@ -9,7 +9,7 @@ module receiver #(parameter data_width = 8)(
   localparam data_count_width = $clog2(data_width);
   
   reg [data_count_width-1:0] data_count;
-  reg [data_count_width-1:0] data_shift_reg;
+  reg [data_width-1:0] data_shift_reg;
   reg [3:0] rx_tick_count;
   
   parameter [2:0] idle=0, start=1, data=2, parity=3, stop=4;
