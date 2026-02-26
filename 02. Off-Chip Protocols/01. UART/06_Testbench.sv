@@ -60,7 +60,7 @@ module test_bench();
   initial begin
     $dumpfile("uart.vcd");
     $dumpvars();
-    $monitor("In: %0d(%b) | TX Line: %0d | Busy: %0d | Rx Line: %0d | Done: %0d | Out: %0d(%b) | Framing Er: %0d | Parity Er: %0d | Tx State: %0d | Rx State: %0d | Time: %0t",data_in, data_in, tx, busy, rx, done, data_out, data_out, framing_error, parity_error, dut.transmit.state, dut.receive.state, $time);
+    $monitor("IN: %0d | TX: %0d | Busy: %0d | Rx: %0d | Done: %0d | OUT: %0d | Framing Er: %0d | Parity Er: %0d | Tx State: %0d | Rx State: %0d | Time: %0t",data_in, tx, busy, rx, done, data_out, framing_error, parity_error, dut.transmit.state, dut.receive.state, $time);
     
     rst=0;
     baud_en=1;
