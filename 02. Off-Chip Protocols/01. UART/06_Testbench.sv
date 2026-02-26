@@ -2,7 +2,7 @@
 
 module test_bench();
   parameter tx_sys_clk = 10_000_000;
-  parameter rx_sys_clk = 50_000_000;
+  parameter rx_sys_clk = 40_000_000;
   parameter baud_rate = 9600;
   parameter data_width = 8;
   
@@ -47,12 +47,12 @@ module test_bench();
   
   initial begin
     tx_clk=0;
-    forever #5 tx_clk = ~tx_clk;
+    forever #50 tx_clk = ~tx_clk;
   end
   
   initial begin
     rx_clk=0;
-    forever #10 rx_clk = ~rx_clk;
+    forever #12.5 rx_clk = ~rx_clk;
   end
   
   assign #1 rx = tx;
@@ -60,7 +60,7 @@ module test_bench();
   initial begin
     $dumpfile("uart.vcd");
     $dumpvars();
-    $monitor("Data_In: %0d(%b) | Transmission Line: %0d | Busy: %0d | Receiving Line: %0d | Done: %0d | Data_Out: %0d(%b) | Framing Error: %0d | Parity Error: %0d | Transmitting State: %0d | Receiving State: %0d | Time: %0t",data_in, data_in, tx, busy, rx, done, data_out, data_out, framing_error, parity_error, dut.transmit.state, dut.receive.state, $time);
+    $monitor("In: %0d(%b) | TX Line: %0d | Busy: %0d | Rx Line: %0d | Done: %0d | Out: %0d(%b) | Framing Er: %0d | Parity Er: %0d | Tx State: %0d | Rx State: %0d | Time: %0t",data_in, data_in, tx, busy, rx, done, data_out, data_out, framing_error, parity_error, dut.transmit.state, dut.receive.state, $time);
     
     rst=0;
     baud_en=1;
