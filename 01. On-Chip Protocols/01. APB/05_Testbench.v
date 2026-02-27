@@ -34,6 +34,8 @@ module apb_tb;
       @(posedge PCLK);
       
       transfer = 0;
+      
+      $display("Write Address:	%0d (%b)	| Write Data:	%0d (%b)",apb_write_paddr,apb_write_paddr,apb_write_data,apb_write_data);
     end
   endtask
   
@@ -52,7 +54,7 @@ module apb_tb;
       transfer = 0;
       #1;
 
-      $display("apb read_data_out = %0d",apb_read_data_out);
+      $display("Read Address:	%0d (%b)	| Read Data:	%0d (%b)",apb_read_paddr,apb_read_paddr,apb_read_data_out,apb_read_data_out);
       
     end
   endtask
@@ -73,17 +75,23 @@ module apb_tb;
     
     PRESETn = 1;
     
+    $display("");
+    
     apb_write(9'd5, 8'd55);
     apb_write(9'd10, 8'd99);
 
     apb_write(9'd260, 8'd123); 
     apb_write(9'd300, 8'd200);
     
+    $display("");
+    
     apb_read(9'd5);
-    apb_read(9'd50);
+    apb_read(9'd10);
 
     apb_read(9'd260);
     apb_read(9'd300);
+    
+    $display("");
     
     #50;
     
