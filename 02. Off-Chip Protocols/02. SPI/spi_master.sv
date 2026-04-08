@@ -59,30 +59,30 @@ module spi_master #(
   always @(posedge clk or negedge rst_n) begin
 
     if (!rst_n) begin
-      half_count <= 0;
+      half_count 	<= 0;
       remainder_acc <= 0;
-      sclk <= 0;
-      target_count <= base_count;
+      sclk 			<= 0;
+      target_count 	<= base_count;
     end 
 
     else begin
 
       if (enable) begin  
 
-        if (half_count == target_count - 1) begin
-          half_count <= 0;
-          sclk <= ~sclk;
+        if (half_count 	== target_count - 1) begin
+          half_count 	<= 0;
+          sclk 			<= ~sclk;
 
           if (remainder_step != 0) begin
 
             if (remainder_acc + remainder_step >= div_twice) begin
-              target_count <= base_count + 1;
-              remainder_acc <= remainder_acc + remainder_step - div_twice;
+              target_count 	<= base_count + 1;
+              remainder_acc	<= remainder_acc + remainder_step - div_twice;
             end 
 
             else begin
-              target_count <= base_count;
-              remainder_acc <= remainder_acc + remainder_step;
+              target_count	<= base_count;
+              remainder_acc	<= remainder_acc + remainder_step;
             end
 
           end
@@ -113,8 +113,8 @@ module spi_master #(
       mosi		<= 0;
       cs_n		<= 1;
       done		<= 0;
-      enable		<= 0;
-      rx_data		<= 0;
+      enable	<= 0;
+      rx_data	<= 0;
       count		<= 0;
       tx_shift	<= 0;
       rx_shift	<= 0;
@@ -130,7 +130,7 @@ module spi_master #(
           if(start & !done) begin
             tx_shift	<= tx_data;
             rx_shift	<= 0;
-            enable	<= 1;
+            enable		<= 1;
             cs_n		<= 0;
             state		<= transfer;
           end
@@ -155,11 +155,11 @@ module spi_master #(
         end
 
         over: begin
-          cs_n	<= 1;
+          cs_n		<= 1;
           rx_data	<= rx_shift;
           enable	<= 0;
-          done	<= 1;
-          state	<= idle;
+          done		<= 1;
+          state		<= idle;
         end
 
         default: begin
