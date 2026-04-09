@@ -20,14 +20,14 @@ module spi_master #(
   localparam div_twice 		= 2 * spi_clk;
   localparam base_count 	= sys_clk / div_twice; // integer value of the half cycle
   localparam remainder_step	= sys_clk % div_twice;
-  localparam rem_width		= $clog2(div_twice);
+  localparam rem_width		= $clog2(div_twice) + 1'b1;
 
   reg [rem_width-1:0] 	remainder_acc;
   reg [31:0] 			half_count;
   reg [31:0] 			target_count; // temporary variable to store the base_count
 
   reg [1:0]	state;
-  reg [2:0]	count;
+  reg [3:0]	count;
   reg [7:0]	tx_shift;
   reg [7:0]	rx_shift;
 
@@ -55,7 +55,7 @@ module spi_master #(
   assign sclk_fall	= sclk_prev & (!sclk); // 1 to 0; Falling edge
 
   // clock divider block to generate the sclk from the system clk          
-  wire enable; // for enabling the generation of sclk
+  reg enable; // for enabling the generation of sclk
   always @(posedge clk or negedge rst_n) begin
 
     if (!rst_n) begin
@@ -100,8 +100,9 @@ module spi_master #(
       end
 
       else begin
-        sclk 		<= 0;
-        half_count	<= 0;
+        sclk 			<= 0;
+        half_count		<= 0;
+        target_count	<= base_count;
       end
 
     end
@@ -127,7 +128,8 @@ module spi_master #(
       case(state)
 
         idle: begin
-          if(start & !done) begin
+          done	<= 0;
+          if(start) begin
             tx_shift	<= tx_data;
             rx_shift	<= 0;
             enable		<= 1;
@@ -141,11 +143,12 @@ module spi_master #(
 
         transfer: begin
           if(sclk_rise) begin
-            rx_shift	<= {rx_shift[6:0],mosi};
-            count		<= count + 1'b1;  
-            if(count	== 7) begin
-              count	<= 0;
+            rx_shift	<= {rx_shift[6:0],miso};
+            if(count	== 8) begin
               state	<= over;
+            end
+            else begin
+              count		<= count + 1'b1;  
             end
           end
           if(sclk_fall) begin
@@ -158,6 +161,7 @@ module spi_master #(
           cs_n		<= 1;
           rx_data	<= rx_shift;
           enable	<= 0;
+          count		<= 0;
           done		<= 1;
           state		<= idle;
         end
@@ -171,5 +175,5 @@ module spi_master #(
     end
 
   end
-  
+
 endmodule
