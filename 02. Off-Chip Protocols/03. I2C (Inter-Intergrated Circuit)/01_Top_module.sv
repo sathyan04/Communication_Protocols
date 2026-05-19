@@ -1,5 +1,5 @@
-`include"i2c_controller.sv"
-`include"i2c_target.sv"
+`include "i2c_controller.sv"
+`include "i2c_target.sv"
 
 module i2c_top_design #(
   parameter CLK_FREQ = 50_000_000,
