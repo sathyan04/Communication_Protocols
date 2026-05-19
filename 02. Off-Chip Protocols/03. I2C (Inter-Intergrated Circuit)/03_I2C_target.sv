@@ -14,29 +14,29 @@ module i2c_target #(
   output reg        done,
   output reg        ack_error	// Acknowledgement from master
 );
-  reg	rw;
-  reg	sda_en;
-  wire 	ack_comb;
-  reg 	ack1_sent;
-  reg 	ack2_sent;
-  reg 	ack_received;
-  reg 	[2:0] state;
-  reg 	[2:0] bit_count;
-  reg 	[7:0] shift_reg;
-  reg 	scl_prev;
-  reg 	sda_prev; 
-  wire 	scl_rising;
-  wire 	scl_falling;
-  reg 	start_det;
-  reg 	stop_det;
+  reg rw;
+  reg sda_en;
+  wire ack_comb;
+  reg ack1_sent;
+  reg ack2_sent;
+  reg ack_received;
+  reg [2:0] state;
+  reg [2:0] bit_count;
+  reg [7:0] shift_reg;
+  reg scl_prev;
+  reg sda_prev; 
+  wire scl_rising;
+  wire scl_falling;
+  reg start_det;
+  reg stop_det;
 
-  localparam idle 		= 0;
-  localparam address 	= 1;
-  localparam ack1 		= 2;
-  localparam write 		= 3;
-  localparam read 		= 4;
-  localparam ack2 		= 5;
-  localparam stop 		= 6;
+  localparam idle 			= 0;
+  localparam address 		= 1;
+  localparam ack1 			= 2;
+  localparam write 			= 3;
+  localparam read 			= 4;
+  localparam ack2 			= 5;
+  localparam stop 			= 6;
 
   assign ack_comb = (state == ack1 && !ack1_sent && (shift_reg[7:1] == SLV_ADDR));
   assign sda = (ack_comb || sda_en) ? 1'b0 : 1'bz;
@@ -117,8 +117,8 @@ module i2c_target #(
         end
 
         ack1: begin
-          if(scl_falling) begin	// slave takes the control of sda line from the master at the end of the 8th clock pulse
-            if(!ack1_sent)begin // Negedge of 8th Pulse
+          if(scl_falling) begin
+            if(!ack1_sent)begin
               if(shift_reg[7:1] == SLV_ADDR) begin
                 sda_en		<= 1;
                 ack1_sent	<= 1;
@@ -130,8 +130,8 @@ module i2c_target #(
                 state		<= stop;
               end
             end
-            else begin	// Negedge of 9th pulse
-              sda_en		<= 0;	// slave releases the sda line control
+            else begin
+              sda_en		<= 0;
               ack1_sent		<= 0;
               if(rw) begin
                 shift_reg	<= data_in;  
@@ -176,7 +176,7 @@ module i2c_target #(
         end
 
         ack2:begin
-          if(rw) begin	// Slave Write - Master Read
+          if(rw) begin
             if(scl_rising) begin
               ack_received	<= sda;
             end
@@ -186,7 +186,7 @@ module i2c_target #(
                 ack_error	<= 1;
             end
           end
-          else begin	// Master Write - Slave Read
+          else begin
             if(scl_falling) begin
               if(!ack2_sent)begin
                 sda_en	<= 1;
@@ -216,5 +216,7 @@ module i2c_target #(
       endcase
 
     end
+
   end
+
 endmodule
