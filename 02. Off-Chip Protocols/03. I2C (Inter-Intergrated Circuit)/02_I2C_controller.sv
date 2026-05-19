@@ -160,7 +160,7 @@
                 bit_count	<= 0;
                 sda_en	<= 0;
                 state		<= ack2;
-              end
+              end   
               else begin
                 bit_count	<= bit_count + 1'b1;
                 state		<= write;
@@ -189,7 +189,6 @@
               if(scl_falling)
                 state		<= stop;
             end
-
             else begin				// Master Write - Slave Read
               if(scl_rising) begin
                 ack_received	<= sda;
