@@ -157,7 +157,6 @@ module i2c_controller #(
             sda_en		<= (shift_reg[7]==0);
             if(bit_count == 7) begin
               bit_count	<= 0;
-              sda_en	<= 0;
               state		<= ack2;
             end
             else begin
