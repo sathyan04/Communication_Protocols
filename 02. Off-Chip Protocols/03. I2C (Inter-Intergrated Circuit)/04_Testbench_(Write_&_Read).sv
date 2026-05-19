@@ -64,6 +64,7 @@ module i2c_tb();
     rst_n 		= 0;
     repeat (2) @(posedge clk);
     rst_n 		= 1;
+    rw			= 0;
     addr 		= SLV_ADDR;
     m_data_in 	= 8'h57;
     @(posedge clk);
