@@ -17,6 +17,7 @@ module i2c_target #(
   reg rw;
   reg sda_en;
   wire ack_comb;
+  wire read_drive;
   reg ack1_sent;
   reg ack2_sent;
   reg ack_received;
@@ -38,8 +39,9 @@ module i2c_target #(
   localparam ack2 			= 5;
   localparam stop 			= 6;
 
-  assign ack_comb = (state == ack1 && !ack1_sent && (shift_reg[7:1] == SLV_ADDR));
-  assign sda = (ack_comb || sda_en) ? 1'b0 : 1'bz;
+  assign read_drive	= (state == read) && !shift_reg[7];
+  assign ack_comb 	= (state == ack1 && !ack1_sent && (shift_reg[7:1] == SLV_ADDR));
+  assign sda		= (ack_comb || read_drive || sda_en) ? 1'b0 : 1'bz;
 
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
@@ -117,31 +119,29 @@ module i2c_target #(
         end
 
         ack1: begin
-          if(scl_falling) begin
-            if(!ack1_sent)begin
-              if(shift_reg[7:1] == SLV_ADDR) begin
-                sda_en		<= 1;
-                ack1_sent	<= 1;
-                rw			<= shift_reg[0];
-              end
-              else begin
-                sda_en		<= 0;
-                ack_error	<= 1;
-                state		<= stop;
-              end
+          if(scl_falling && !ack1_sent) begin
+            if(shift_reg[7:1] == SLV_ADDR) begin
+              sda_en    <= 1;
+              ack1_sent <= 1;
+              rw        <= shift_reg[0];
             end
             else begin
-              sda_en		<= 0;
-              ack1_sent		<= 0;
-              if(rw) begin
-                shift_reg	<= data_in;  
-                state		<= read;
-              end
-              else begin
-                state		<= write;
-              end
+              sda_en    <= 0;
+              ack_error <= 1;
+              state     <= stop;
             end
-          end  
+          end
+          else if(scl_rising && ack1_sent) begin
+            sda_en    <= 0;
+            ack1_sent <= 0;
+            if(rw) begin
+              shift_reg <= data_in;
+              state <= read;
+            end
+            else begin
+              state <= write;
+            end
+          end
         end
 
         write:begin
@@ -161,11 +161,11 @@ module i2c_target #(
 
         read: begin
           if(scl_falling) begin
+            $display("SLAVE read: bit_count=%d, shift_reg=%h, sending bit %b (MSB)", bit_count, shift_reg, shift_reg[7]);
             shift_reg	<= {shift_reg[6:0],1'b0};
-            sda_en		<= (shift_reg[7]==0);
             if(bit_count == 7) begin
+              $display("SLAVE read: last bit, going to ack2");
               bit_count	<= 0;
-              sda_en	<= 0;
               state		<= ack2;
             end
             else begin
