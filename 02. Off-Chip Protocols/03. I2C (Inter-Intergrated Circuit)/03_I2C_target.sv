@@ -14,29 +14,32 @@ module i2c_target #(
   output reg        done,
   output reg        ack_error	// Acknowledgement from master
 );
-  reg rw;
-  reg sda_en;
-  reg ack1_sent;
-  reg ack2_sent;
-  reg ack_received;
+  reg	rw;
+  reg	sda_en;
+  wire 	ack_comb;
+  reg 	ack1_sent;
+  reg 	ack2_sent;
+  reg 	ack_received;
+  reg 	[2:0] state;
+  reg 	[2:0] bit_count;
+  reg 	[7:0] shift_reg;
+  reg 	scl_prev;
+  reg 	sda_prev; 
+  wire 	scl_rising;
+  wire 	scl_falling;
+  reg 	start_det;
+  reg 	stop_det;
 
-  assign sda = sda_en ? 1'b0 : 1'bz;
+  localparam idle 		= 0;
+  localparam address 	= 1;
+  localparam ack1 		= 2;
+  localparam write 		= 3;
+  localparam read 		= 4;
+  localparam ack2 		= 5;
+  localparam stop 		= 6;
 
-  reg [2:0] state;
-
-  localparam idle 			= 0;
-  localparam address 		= 1;
-  localparam ack1 			= 2;
-  localparam write 			= 3;
-  localparam read 			= 4;
-  localparam ack2 			= 5;
-  localparam stop 			= 6;
-
-  reg [2:0] bit_count;
-  reg [7:0] shift_reg;
-
-  reg scl_prev;
-  reg sda_prev; 
+  assign ack_comb = (state == ack1 && !ack1_sent && (shift_reg[7:1] == SLV_ADDR));
+  assign sda = (ack_comb || sda_en) ? 1'b0 : 1'bz;
 
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
@@ -49,17 +52,19 @@ module i2c_target #(
     end
   end
 
-  wire scl_rising;
-  wire scl_falling;
-
   assign scl_rising 	= (~scl_prev && scl);
   assign scl_falling 	= (scl_prev && ~scl);
 
-  wire start_det;
-  wire stop_det;
-
-  assign start_det	= (scl && scl_prev && ~sda && sda_prev);	// SCL clock is stable High, start happens when sda falls from high to low
-  assign stop_det	= (scl && scl_prev && sda && ~sda_prev);	// SCL clock is stable High, stop happens when sda rises from low to high
+  always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+      start_det <= 0;
+      stop_det  <= 0;
+    end
+    else begin
+      start_det <= scl && sda_prev && ~sda;
+      stop_det  <= scl && ~sda_prev && sda;
+    end
+  end
 
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
@@ -129,7 +134,7 @@ module i2c_target #(
               sda_en		<= 0;	// slave releases the sda line control
               ack1_sent		<= 0;
               if(rw) begin
-                shift_reg	<= data_in;                
+                shift_reg	<= data_in;  
                 state		<= read;
               end
               else begin
@@ -195,7 +200,7 @@ module i2c_target #(
             end
           end
         end
-        
+
         stop: begin
           if(stop_det) begin
             busy	<= 0;
@@ -205,13 +210,11 @@ module i2c_target #(
           else
             state	<= stop;
         end
-        
+
         default: state	<= idle;
-        
+
       endcase
-      
+
     end
-    
   end
-  
 endmodule
