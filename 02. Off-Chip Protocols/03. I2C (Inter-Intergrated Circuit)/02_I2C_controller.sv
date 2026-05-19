@@ -168,9 +168,11 @@ module i2c_controller #(
 
         read:begin
           if(scl_rising)begin
+            $display("MASTER read: bit_count=%d, sda=%b, shift_reg before=%h", bit_count, sda, shift_reg);
             shift_reg	<= {shift_reg[6:0],sda};
             if(bit_count == 7) begin
               data_out	<= {shift_reg[6:0],sda};
+              $display("MASTER read: assembled byte = %h at time %t", {shift_reg[6:0], sda}, $time);
               bit_count	<= 0;
               state		<= ack2;
             end
@@ -183,6 +185,7 @@ module i2c_controller #(
 
         ack2:begin
           if(rw)begin
+            $display("MASTER: sending NACK (release SDA)");
             sda_en <= 0;
             if(scl_falling)
               state <= stop;
