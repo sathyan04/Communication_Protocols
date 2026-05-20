@@ -2,6 +2,6 @@
 
 <pre>
   TEST PASSED
-  Slave sent     : 0x96
-  Master received  : 0x96
+  Slave sent		  : 0x96
+  Master received	: 0x96
 </pre>
