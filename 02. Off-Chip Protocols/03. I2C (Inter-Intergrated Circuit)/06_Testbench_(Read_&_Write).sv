@@ -77,8 +77,8 @@ module i2c_tb();
     #1;
     if (m_data_out == s_data_in) begin
       $display("TEST PASSED");
-      $display("Slave sent     : 0x%h", s_data_in);
-      $display("Master received  : 0x%h", m_data_out);
+      $display("Slave sent		: 0x%h", s_data_in);
+      $display("Master received	: 0x%h", m_data_out);
     end 
     else begin
       $display("TEST FAILED");
