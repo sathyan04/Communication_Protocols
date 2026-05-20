@@ -1,4 +1,4 @@
-![Output Waveform](https://github.com/user-attachments/assets/783d0cb1-4b83-4212-a8c2-ae21fa9e5175)
+![Output Waveform](https://github.com/user-attachments/assets/08622a4a-9e3d-4bdf-948d-6200d7a91e3b)
 
 <pre>
 TEST PASSED
